@@ -3,9 +3,9 @@
 
 struct Node
 {
-    int pow;
     int val;
     struct Node *next;
+    struct Node *prev;
 };
 
 void traverseLL(struct Node **head)
@@ -13,114 +13,140 @@ void traverseLL(struct Node **head)
     struct Node *temp = *head;
     while (temp != NULL)
     {
-        printf("%dx^%d -> ", temp->val, temp->pow);
+        printf("%d <--> ", temp->val);
         temp = temp->next;
     }
     printf("NULL\n");
 }
 
-void push(struct Node **poly, int pow, int coeff)
+void insertAtPosition(struct Node **head, int val, int pos)
 {
     struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    newNode->val = val;
 
-    newNode->val = coeff;
-    newNode->pow = pow;
-    newNode->next = NULL;
-
-    if (*poly == NULL)
+    if (pos == 1)
     {
-        *poly = newNode;
-        return;
+        newNode->next = *head;
+        newNode->prev = NULL;
+        if (*head != NULL)
+        {
+            (*head)->prev = newNode;
+        }
+        *head = newNode;
     }
     else
     {
-        struct Node *temp = *poly;
-        while (temp->next != NULL)
+        struct Node *temp = *head;
+        for (int i = 0; i < pos - 2; i++)
         {
+            if (temp->next == NULL)
+            {
+                printf("Incorrect position\n");
+                return;
+            }
             temp = temp->next;
         }
+        newNode->next = temp->next;
+        if (temp->next != NULL)
+            temp->next->prev = newNode;
         temp->next = newNode;
+        newNode->prev = temp;
     }
+    printf("New Linked List: ");
+    traverseLL(head);
 }
 
-void inputPolynomial(struct Node **poly)
+void deleteAtPosition(struct Node **head, int pos)
 {
-    int maxDeg, coeff;
+    struct Node *temp = *head;
 
-    printf("Enter max degree for the polynomial: ");
-    scanf("%d", &maxDeg);
-
-    printf("Enter the coefficients for respective degree of x: \n");
-    for (int i = maxDeg; i >= 0; i--)
+    if (*head == NULL)
     {
-        printf("Coefficient for x^%d: ", i);
-        scanf("%d", &coeff);
-        push(poly, i, coeff);
+        printf("\nEmpty LL\n");
+        return;
     }
-}
-
-struct Node *addPolynomials(struct Node *poly1, struct Node *poly2)
-{
-    struct Node *result = NULL;
-    struct Node *temp1 = poly1, *temp2 = poly2;
-
-    while (temp1 != NULL && temp2 != NULL)
+    else if (pos == 1)
+    { // del from beg
+        *head = (*head)->next;
+        free(temp);
+    }
+    else
     {
-        if (temp1->pow == temp2->pow)
+        for (int i = 0; i < pos - 2; i++)
         {
-            push(&result, temp1->pow, temp1->val + temp2->val);
-            temp1 = temp1->next;
-            temp2 = temp2->next;
+            if (temp->next == NULL)
+            {
+                printf("\nIncorrect position\n");
+                return;
+            }
+            temp = temp->next;
         }
-        else if (temp1->pow > temp2->pow)
+        struct Node *temp2 = temp->next;
+        if (temp2 == NULL)
         {
-            push(&result, temp1->pow, temp1->val);
-            temp1 = temp1->next;
+            printf("\nIncorrect Position\n");
+            return;
         }
-        else
+        temp->next = temp->next->next;
+        if (temp->next != NULL)
         {
-            push(&result, temp2->pow, temp2->val);
-            temp2 = temp2->next;
+            temp->next->prev = temp;
         }
+        free(temp2);
     }
-
-    while (temp1 != NULL)
-    {
-        push(&result, temp1->pow, temp1->val);
-        temp1 = temp1->next;
-    }
-
-    while (temp2 != NULL)
-    {
-        push(&result, temp2->pow, temp2->val);
-        temp2 = temp2->next;
-    }
-
-    return result;
+    printf("New Linked List: ");
+    traverseLL(head);
 }
 
 int main()
 {
-    struct Node *poly1 = NULL;
-    struct Node *poly2 = NULL;
-    struct Node *sum = NULL;
+    struct Node *head = NULL;
+    int n;
+    printf("Enter the initial number of nodes in Doubly LL: ");
+    scanf("%d", &n);
+    printf("Enter the elements of LL: ");
+    for (int i = 0; i < n; i++)
+    {
+        int val;
+        scanf("%d", &val);
+        insertAtPosition(&head, val, i + 1);
+    }
 
-    printf("Polynomial 1 Input:\n");
-    inputPolynomial(&poly1);
+    int option = 0;
+    while (option != 10)
+    {
+        printf("\n**MENU**\n");
+        printf("1) Insert at position\n");
+        printf("2) Deletion from position\n");
+        printf("3) Traverse LL\n");
+        printf("4) Exit\n");
 
-    printf("Polynomial 2 Input:\n");
-    inputPolynomial(&poly2);
+        printf("Enter your choice: ");
+        scanf("%d", &option);
 
-    sum = addPolynomials(poly1, poly2);
-
-    printf("Polynomial 1: ");
-    traverseLL(&poly1);
-
-    printf("Polynomial 2: ");
-    traverseLL(&poly2);
-
-    printf("Sum of Polynomial 1 and Polynomial 2: ");
-    traverseLL(&sum);
-
+        int val, pos;
+        switch (option)
+        {
+        case 1:
+            printf("Enter the element and position to insert: ");
+            scanf("%d %d", &val, &pos);
+            insertAtPosition(&head, val, pos);
+            break;
+        case 2:
+            printf("Enter the position to delete: ");
+            scanf("%d", &pos);
+            deleteAtPosition(&head, pos);
+            break;
+        case 3:
+            traverseLL(&head);
+            break;
+        case 4:
+            printf("Exiting code");
+            break;
+        default:
+            printf("Enter a valid choice: ");
+            break;
+        }
+    }
     return 0;
 }
