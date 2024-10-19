@@ -10,7 +10,25 @@ struct Node
 
 void traverseLL(struct Node **head)
 {
+    if (*head == NULL)
+    {
+        printf("NULL\n");
+        return;
+    }
+
     struct Node *temp = *head;
+    struct Node *prev = NULL;
+    struct Node *next = NULL;
+
+    while (temp != NULL)
+    {
+        next = temp->next;
+        temp->next = prev;
+        prev = temp;
+        temp = next;
+    }
+
+    temp = prev;
     while (temp != NULL)
     {
         printf("%dx^%d -> ", temp->val, temp->pow);
@@ -51,7 +69,7 @@ void inputPolynomial(struct Node **poly)
     scanf("%d", &maxDeg);
 
     printf("Enter the coefficients for respective degree of x: \n");
-    for (int i = maxDeg; i >= 0; i--)
+    for (int i = 0; i <= maxDeg; i++)
     {
         printf("Coefficient for x^%d: ", i);
         scanf("%d", &coeff);
@@ -99,6 +117,61 @@ struct Node *addPolynomials(struct Node *poly1, struct Node *poly2)
     return result;
 }
 
+void printSum(struct Node **poly)
+{
+    if (*poly == NULL)
+    {
+        printf("0\n");
+        return;
+    }
+
+    struct Node *temp = *poly;
+    struct Node *prev = NULL;
+    struct Node *next = NULL;
+
+    while (temp != NULL)
+    {
+        next = temp->next;
+        temp->next = prev;
+        prev = temp;
+        temp = next;
+    }
+
+    temp = prev;
+    int firstTerm = 1;
+
+    while (temp != NULL)
+    {
+        if (temp->val != 0)
+        {
+            if (!firstTerm)
+                printf(" + ");
+
+            if (temp->pow == 0)
+                printf("%d", temp->val);
+            else if (temp->pow == 1)
+            {
+                if (temp->val == 1)
+                    printf("x");
+                else
+                    printf("%dx", temp->val);
+            }
+            else
+            {
+                if (temp->val == 1)
+                    printf("x^%d", temp->pow);
+                else
+                    printf("%dx^%d", temp->val, temp->pow);
+            }
+
+            firstTerm = 0;
+        }
+        temp = temp->next;
+    }
+
+    printf("\n");
+}
+
 int main()
 {
     struct Node *poly1 = NULL;
@@ -113,14 +186,8 @@ int main()
 
     sum = addPolynomials(poly1, poly2);
 
-    printf("Polynomial 1: ");
-    traverseLL(&poly1);
-
-    printf("Polynomial 2: ");
-    traverseLL(&poly2);
-
     printf("Sum of Polynomial 1 and Polynomial 2: ");
-    traverseLL(&sum);
+    printSum(&sum);
 
     return 0;
 }
