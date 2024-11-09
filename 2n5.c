@@ -3,7 +3,6 @@
 int stack[100], top1 = -1, top2 = 100, n = 100;
 
 int main() {
-    // 2 stacks in one array
     int choice = 0;
 
     while (choice != 7) {

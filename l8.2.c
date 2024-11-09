@@ -1,121 +1,86 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Node
-{
-    int val;
+struct Node {
+    int data;
+    int priority;
     struct Node *next;
 };
 
-void traverseLL(struct Node **head)
-{
-    struct Node *temp = *head;
-    while (temp != NULL)
-    {
-        printf("%d -> ", temp->val);
-        temp = temp->next;
-    }
-    printf("NULL\n");
+struct Node *createNode(int data, int priority) {
+    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->priority = priority;
+    newNode->next = NULL;
+    return newNode;
 }
 
-void insertSort(struct Node **head, int val, int pos)
-{
-    // struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    // newNode->val = val;
-
-    // if (pos == 1)
-    // {
-    //     newNode->next = *head;
-    //     *head = newNode;
-    // }
-    // else
-    // {
-    //     struct Node *temp = *head;
-    //     for (int i = 0; i < pos - 2; i++)
-    //     {
-    //         if (temp->next == NULL)
-    //         {
-    //             printf("Incorrect position\n");
-    //             return;
-    //         }
-    //         temp = temp->next;
-    //     }
-    //     newNode->next = temp->next;
-    //     temp->next = newNode;
-    // }
-    // printf("New Linked List: ");
-    // traverseLL(head);
-}
-
-void deleteAtPosition(struct Node **head, int pos)
-{
-    struct Node *temp = *head;
-
-    if (*head == NULL)
-    {
-        printf("Empty LL\n");
-        return;
-    }
-    else if (pos == 1)
-    { // del from beg
-        *head = (*head)->next;
-        free(temp);
-    }
-    else
-    {
-        for (int i = 0; i < pos - 2; i++)
-        {
-            if (temp->next == NULL)
-            {
-                printf("Incorrect position\n");
-                return;
-            }
+void enqueue(struct Node **head, int data, int priority) {
+    struct Node *newNode = createNode(data, priority);
+    if (*head == NULL || (*head)->priority > priority) {
+        newNode->next = *head;
+        *head = newNode;
+    } else {
+        struct Node *temp = *head;
+        while (temp->next != NULL && temp->next->priority <= priority) {
             temp = temp->next;
         }
-        struct Node *temp2 = temp->next;
-        if (temp2 != NULL)
-            temp->next = temp2->next;
-        free(temp2);
+        newNode->next = temp->next;
+        temp->next = newNode;
     }
-    printf("New Linked List: ");
-    traverseLL(head);
+    printf("Element %d added with priority %d.\n", data, priority);
 }
 
-int main()
-{
+void dequeue(struct Node **head) {
+    if (*head == NULL) {
+        printf("Priority Queue is empty.\n");
+        return;
+    }
+    struct Node *temp = *head;
+    *head = (*head)->next;
+    printf("Removed element with data %d and priority %d.\n", temp->data, temp->priority);
+    free(temp);
+}
+
+void display(struct Node *head) {
+    if (head == NULL) {
+        printf("Priority Queue is empty.\n");
+        return;
+    }
+    printf("Priority Queue:\nPriority\tItem\n");
+    while (head != NULL) {
+        printf("%d\t\t%d\n", head->priority, head->data);
+        head = head->next;
+    }
+}
+
+int main() {
     struct Node *head = NULL;
+    int choice, data, priority;
 
-    int option = 0;
-    while (option != 4)
-    {
-        printf("\n**MENU FOR PRIORITY QUEUE**\n");
-        printf("1) Enqueue\n");  // insert sort
-        printf("2) Dequeue\n");  // delete front
-        printf("3) Traverse\n"); // traverse ll
-        printf("4) Exit\n");
+    while (1) {
+        printf("Main Menu\n1. Enqueue\n2. Dequeue\n3. Display\n4. Exit\n");
+        printf("Enter option: ");
+        scanf("%d", &choice);
 
-        printf("Enter your choice: ");
-        scanf("%d", &option);
-
-        int val, pos;
-        switch (option)
-        {
+        switch (choice) {
         case 1:
-            printf("Enter the val: ");
-            scanf("%d", &val);
-            head = insertSort(head, val);
+            printf("Enter element: ");
+            scanf("%d", &data);
+            printf("Enter priority: ");
+            scanf("%d", &priority);
+            enqueue(&head, data, priority);
             break;
         case 2:
-            deleteAtPosition(&head, 1);
+            dequeue(&head);
             break;
         case 3:
-            traverseLL(&head);
+            display(head);
             break;
         case 4:
-            return 0;
+            exit(0);
         default:
-            printf("Enter a valid choice: ");
-            break;
+            printf("Invalid option. Try again.\n");
         }
     }
     return 0;
